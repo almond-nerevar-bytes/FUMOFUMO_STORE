@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo_accion }} | FUMOFUMO World{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="{% url 'core:inicio' %}" class="text-decoration-none text-danger">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'catalogo:gestion' %}" class="text-decoration-none text-danger">Inventario Fumo</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ titulo_accion }}</li>
+            </ol>
+        </nav>
+
+        <div class="card shadow border-0 rounded-4 p-4 p-md-5 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <div>
+                    <h2 class="h4 fw-bold mb-1 text-danger">
+                        <i class="bi bi-pencil-square me-2"></i>{{ titulo_accion }}
+                    </h2>
+                    <p class="text-muted small mb-0">Completa la ficha técnica para registrar o actualizar este Fumo.</p>
+                </div>
+                <a href="{% url 'catalogo:gestion' %}" class="btn btn-outline-dark btn-sm rounded-pill">
+                    <i class="bi bi-arrow-left me-1"></i>Volver al Listado
+                </a>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2 small rounded-3">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-7">
+                        <label for="{{ form.nombre.id_for_label }}" class="form-label fw-semibold text-dark">{{ form.nombre.label }}</label>
+                        {{ form.nombre }}
+                        {% if form.nombre.errors %}
+                            <div class="text-danger small mt-1">{{ form.nombre.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-5">
+                        <label for="{{ form.categoria.id_for_label }}" class="form-label fw-semibold text-dark">{{ form.categoria.label }}</label>
+                        {{ form.categoria }}
+                        {% if form.categoria.errors %}
+                            <div class="text-danger small mt-1">{{ form.categoria.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.fabricante.id_for_label }}" class="form-label fw-semibold text-dark">{{ form.fabricante.label }}</label>
+                        {{ form.fabricante }}
+                        {% if form.fabricante.errors %}
+                            <div class="text-danger small mt-1">{{ form.fabricante.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.escala.id_for_label }}" class="form-label fw-semibold text-dark">{{ form.escala.label }}</label>
+                        {{ form.escala }}
+                        {% if form.escala.errors %}
+                            <div class="text-danger small mt-1">{{ form.escala.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.descripcion.id_for_label }}" class="form-label fw-semibold text-dark">{{ form.descripcion.label }}</label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.errors %}
+                        <div class="text-danger small mt-1">{{ form.descripcion.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.precio.id_for_label }}" class="form-label fw-semibold text-dark">{{ form.precio.label }}</label>
+                        {{ form.precio }}
+                        {% if form.precio.errors %}
+                            <div class="text-danger small mt-1">{{ form.precio.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.stock.id_for_label }}" class="form-label fw-semibold text-dark">{{ form.stock.label }}</label>
+                        {{ form.stock }}
+                        {% if form.stock.errors %}
+                            <div class="text-danger small mt-1">{{ form.stock.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.imagen.id_for_label }}" class="form-label fw-semibold text-dark">{{ form.imagen.label }}</label>
+                    {{ form.imagen }}
+                    {% if form.imagen.errors %}
+                        <div class="text-danger small mt-1">{{ form.imagen.errors }}</div>
+                    {% endif %}
+                    {% if fumo and fumo.imagen %}
+                        <div class="mt-2 p-2 bg-light rounded-3 d-flex align-items-center gap-3 border">
+                            <img src="{{ fumo.imagen.url }}" alt="Vista previa" style="width: 50px; height: 50px; object-fit: cover;" class="rounded border shadow-sm">
+                            <span class="small text-muted">Imagen actual cargada en el templo.</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="row g-3 mb-4 p-3 bg-light rounded-3 border">
+                    <div class="col-sm-6">
+                        <div class="form-check form-switch">
+                            {{ form.activo }}
+                            <label class="form-check-label fw-semibold text-dark" for="{{ form.activo.id_for_label }}">
+                                {{ form.activo.label }}
+                            </label>
+                        </div>
+                        <small class="text-muted d-block ps-4">Disponible para ser adoptado por entrenadores y coleccionistas.</small>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-check form-switch">
+                            {{ form.destacado }}
+                            <label class="form-check-label fw-semibold text-dark" for="{{ form.destacado.id_for_label }}">
+                                {{ form.destacado.label }}
+                            </label>
+                        </div>
+                        <small class="text-muted d-block ps-4">Se destacará con estrella en la portada principal de Gensokyo.</small>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'catalogo:gestion' %}" class="btn btn-outline-secondary rounded-pill px-3">Cancelar</a>
+                    <button type="submit" class="btn btn-danger bg-gradient fw-bold px-4 rounded-pill shadow-sm">
+                        <i class="bi bi-cloud-arrow-up-fill me-1"></i>{{ boton_texto }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

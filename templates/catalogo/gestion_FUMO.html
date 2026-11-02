@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Inventario Fumo | FUMOFUMO World{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="h3 fw-bold mb-1"><i class="bi bi-box2-heart-fill text-danger me-2"></i>Gestión de Inventario Fumo</h1>
+        <p class="text-muted small mb-0">Panel de control de la Academia y Gensokyo para administrar peluches, stock y precios.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'catalogo:crear' %}" class="btn btn-danger fw-semibold bg-gradient">
+            <i class="bi bi-plus-circle-fill me-1"></i>Adoptar / Ingresar Nuevo Fumo
+        </a>
+        <a href="/admin/catalogo/figura/" target="_blank" class="btn btn-outline-dark">
+            <i class="bi bi-shield-lock-fill me-1"></i>Panel Admin Gensokyo
+        </a>
+    </div>
+</div>
+
+<div class="card border shadow-sm p-3 mb-4 rounded-3 bg-white">
+    <form method="get" class="row g-2">
+        <div class="col-md-10">
+            <input type="text" name="q" class="form-control" placeholder="Buscar Fumo por nombre, fabricante (Gift) o franquicia..." value="{{ query }}">
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-danger bg-gradient">Buscar Fumo</button>
+        </div>
+    </form>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-danger bg-gradient text-white">
+                <tr>
+                    <th scope="col" style="width: 70px;">ID</th>
+                    <th scope="col" style="width: 80px;">Foto</th>
+                    <th scope="col">Nombre del Fumo</th>
+                    <th scope="col">Categoría</th>
+                    <th scope="col">Fabricante</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" class="text-end" style="width: 150px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fumo in fumos %}
+                <tr>
+                    <td class="fw-bold text-muted">#{{ fumo.id }}</td>
+                    <td>
+                        {% if fumo.imagen %}
+                            <img src="{{ fumo.imagen.url }}" alt="{{ fumo.nombre }}" class="rounded border shadow-sm" style="width: 48px; height: 48px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light rounded border text-center d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="bi bi-image text-muted"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'catalogo:detalle' fumo.slug %}" class="fw-bold text-dark text-decoration-none">
+                            {{ fumo.nombre }}
+                        </a>
+                        {% if fumo.destacado %}
+                            <span class="badge bg-danger text-white ms-1" style="font-size: 0.65rem;">¡Estelar!</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge bg-light text-dark border">{{ fumo.categoria.nombre }}</span></td>
+                    <td class="text-secondary small">{{ fumo.fabricante }}</td>
+                    <td class="fw-bold text-danger">{{ fumo.precio_formateado }}</td>
+                    <td>
+                        {% if fumo.en_stock %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">{{ fumo.stock }} un.</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Agotado</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if fumo.activo %}
+                            <span class="badge bg-success">Visible</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Oculto</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'catalogo:editar' fumo.id %}" class="btn btn-outline-danger" title="Editar Fumo">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'catalogo:eliminar' fumo.id %}" class="btn btn-outline-dark" title="Eliminar Fumo">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center py-5 text-muted">
+                        <i class="bi bi-emoji-dizzy display-4 d-block mb-2 text-danger"></i>
+                        No hay Fumos registrados en este inventario todavía.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    {% if fumos.has_other_pages %}
+    <div class="card-footer bg-white py-3">
+        <ul class="pagination pagination-sm justify-content-center mb-0">
+            {% if fumos.has_previous %}
+                <li class="page-item"><a class="page-link text-danger" href="?page={{ fumos.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Anterior</a></li>
+            {% endif %}
+            {% for i in fumos.paginator.page_range %}
+                <li class="page-item {% if fumos.number == i %}active{% endif %}">
+                    <a class="page-link {% if fumos.number == i %}bg-danger border-danger text-white{% else %}text-danger{% endif %}" href="?page={{ i }}{% if query %}&q={{ query }}{% endif %}">{{ i }}</a>
+                </li>
+            {% endfor %}
+            {% if fumos.has_next %}
+                <li class="page-item"><a class="page-link text-danger" href="?page={{ fumos.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Siguiente</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
