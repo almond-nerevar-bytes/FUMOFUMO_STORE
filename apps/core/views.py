@@ -27,4 +27,4 @@ def nosotros(request):
     Información institucional sobre FumoShop Chile,
     garantía de peluches Fumo originales (Gift / (somewhat) AmiAmi), envíos a todo Chile y atención al coleccionista.
     """
-    return render(request, 'core/nosotros.html')
+    return render(request, 'core/nosotres.html')

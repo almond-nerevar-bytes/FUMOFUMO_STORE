@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Cuenta de Cliente | FumoShop Chile 🇨🇱{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card border rounded-0 shadow-none bg-white mb-5">
+            <div class="bg-dark text-white p-3 border-bottom border-danger border-3">
+                <h2 class="h5 fw-bold mb-1">
+                    <span class="text-danger me-1">■</span> Registro de Coleccionista 🇨🇱
+                </h2>
+                <p class="small text-light opacity-75 mb-0">Únete a la comunidad FUMOFUMO World en Chile y administra tus compras.</p>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger py-2 small rounded-0">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label fw-semibold small text-dark">Nombres</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.first_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label fw-semibold small text-dark">Apellidos</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.last_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold small text-dark">Nombre de Usuario</label>
+                        {{ form.username }}
+                        <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">{{ form.username.help_text }}</small>
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold small text-dark">Correo Electrónico</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label fw-semibold small text-dark">Contraseña</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="text-danger small mt-1">{{ form.password1.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label fw-semibold small text-dark">Confirmar Contraseña</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="text-danger small mt-1">{{ form.password2.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-danger btn-sm rounded-0 fw-bold py-2 text-uppercase" style="background-color: #d9381e;">
+                            <i class="bi bi-check-circle me-1"></i>Registrar Cuenta Fumo
+                        </button>
+                    </div>
+                </form>
+
+                <hr class="my-3">
+
+                <div class="text-center">
+                    <p class="text-muted small mb-0">¿Ya tienes una cuenta registrada? 
+                        <a href="{% url 'usuarios:login' %}" class="fw-bold text-danger text-decoration-none">Inicia sesión</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

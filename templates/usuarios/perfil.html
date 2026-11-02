@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Cuenta | FumoShop Chile 🇨🇱{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border rounded-0 shadow-none bg-white mb-5">
+            <div class="bg-dark text-white p-4 border-bottom border-danger border-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-person-circle fs-2 text-danger"></i>
+                        <div>
+                            <h2 class="h4 fw-bold mb-0 text-white">{{ usuario.get_full_name|default:usuario.username }}</h2>
+                            <span class="badge bg-secondary rounded-0 mt-1" style="font-size: 0.7rem;">@{{ usuario.username }}</span>
+                            {% if usuario.is_staff %}
+                                <span class="badge bg-danger rounded-0 mt-1 ms-1" style="font-size: 0.7rem;">Personal Admin 🇨🇱</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <span class="fs-4">🇨🇱</span>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-dark mb-3 small text-uppercase border-bottom pb-2">
+                    <span class="text-danger">■</span> Datos del Coleccionista
+                </h5>
+                
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm table-striped border align-middle small mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="bg-light text-dark w-25">Nombre Completo:</th>
+                                <td>{{ usuario.get_full_name|default:"No especificado" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-dark">Correo Electrónico:</th>
+                                <td>{{ usuario.email|default:"No registrado" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-dark">Fecha de Registro:</th>
+                                <td>{{ usuario.date_joined|date:"d \d\e F \d\e Y" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-dark">Último Acceso:</th>
+                                <td>{{ usuario.last_login|date:"d \d\e F \d\e Y, H:i"|default:"Primer acceso" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{% url 'catalogo:lista' %}" class="btn btn-danger btn-sm rounded-0 fw-bold px-3" style="background-color: #d9381e;">
+                        <i class="bi bi-grid me-1"></i>Explorar Catálogo Fumo
+                    </a>
+                    {% if usuario.is_staff %}
+                        <a href="{% url 'catalogo:gestion' %}" class="btn btn-outline-dark btn-sm rounded-0">
+                            <i class="bi bi-boxes me-1"></i>Gestionar Inventario Fumo
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

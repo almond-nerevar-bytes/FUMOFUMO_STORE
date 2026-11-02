@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar Sesión | FumoShop Chile 🇨🇱{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border rounded-0 shadow-none bg-white">
+            <div class="bg-dark text-white p-3 border-bottom border-danger border-3">
+                <h2 class="h5 fw-bold mb-1">
+                    <span class="text-danger me-1">■</span> Acceso a Tu Cuenta Fumo 🇨🇱
+                </h2>
+                <p class="small text-light opacity-75 mb-0">Ingresa a tu cuenta de coleccionista para continuar con tus pedidos.</p>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger py-2 small rounded-0">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold small text-dark">Nombre de Usuario</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small text-dark">Contraseña</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-danger btn-sm rounded-0 fw-bold py-2 text-uppercase" style="background-color: #d9381e;">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
+                        </button>
+                    </div>
+                </form>
+
+                <hr class="my-3">
+
+                <div class="text-center">
+                    <p class="text-muted small mb-0">¿Nuevo coleccionista de Fumos en Chile? 
+                        <a href="{% url 'usuarios:registro' %}" class="fw-bold text-danger text-decoration-none">Regístrate gratis</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

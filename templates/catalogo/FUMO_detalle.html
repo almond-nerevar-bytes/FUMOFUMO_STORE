@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ fumo.nombre }} | FUMOFUMO World 🇨🇱{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small text-muted">
+        <li class="breadcrumb-item"><a href="{% url 'core:inicio' %}" class="text-decoration-none text-secondary">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'catalogo:lista' %}" class="text-decoration-none text-secondary">Catálogo Fumo</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'catalogo:lista' %}?categoria={{ fumo.categoria.slug }}" class="text-decoration-none text-secondary">{{ fumo.categoria.nombre }}</a></li>
+        <li class="breadcrumb-item active text-dark" aria-current="page">{{ fumo.nombre }}</li>
+    </ol>
+</nav>
+
+<div class="card border rounded-1 shadow-none bg-white mb-5">
+    <div class="row g-0">
+        <div class="col-md-5 bg-light p-4 text-center border-end d-flex align-items-center justify-content-center position-relative">
+            <span class="position-absolute top-0 start-0 m-3 badge bg-secondary rounded-0 text-uppercase" style="font-size: 0.65rem;">Importación Japón 🇨🇱</span>
+            {% if fumo.imagen %}
+                <img src="{{ fumo.imagen.url }}" alt="{{ fumo.nombre }}" class="img-fluid" style="max-height: 400px; object-fit: contain;">
+            {% else %}
+                <div class="text-muted py-5">
+                    <i class="bi bi-image display-1"></i>
+                    <p class="small mt-2">Imagen no disponible</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-7 p-4 p-md-5 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-dark rounded-0 px-2 py-1 text-uppercase" style="font-size: 0.7rem;">
+                        {{ fumo.categoria.nombre }}
+                    </span>
+                    {% if user.is_staff %}
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'catalogo:editar' fumo.id %}" class="btn btn-outline-secondary rounded-0">Editar</a>
+                            <a href="{% url 'catalogo:eliminar' fumo.id %}" class="btn btn-outline-danger rounded-0">Eliminar</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <h1 class="h3 fw-bold text-dark mb-3">{{ fumo.nombre }}</h1>
+
+                <table class="table table-sm table-borderless small text-muted mb-4">
+                    <tr>
+                        <td style="width: 120px;" class="fw-bold">Fabricante:</td>
+                        <td class="text-dark">{{ fumo.fabricante }}</td>
+                    </tr>
+                    {% if fumo.escala %}
+                    <tr>
+                        <td class="fw-bold">Especificación:</td>
+                        <td class="text-dark">{{ fumo.escala }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td class="fw-bold">Disponibilidad:</td>
+                        <td>
+                            {% if fumo.en_stock %}
+                                <span class="text-success fw-bold">En Stock ({{ fumo.stock }} disponibles) - Despacho desde Chile 🇨🇱</span>
+                            {% else %}
+                                <span class="text-danger fw-bold">Agotado / Sin Stock</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="p-3 bg-light border rounded-0 mb-4">
+                    <div class="text-muted small text-uppercase fw-bold mb-1">Precio de Venta</div>
+                    <span class="fs-3 fw-bold text-danger">{{ fumo.precio_formateado }}</span>
+                    <span class="text-muted small">CLP (Impuestos incluidos)</span>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold text-dark text-uppercase small border-bottom pb-1">Detalles del Artículo</h6>
+                    <p class="text-secondary small lh-base" style="white-space: pre-line;">{{ fumo.descripcion }}</p>
+                </div>
+            </div>
+
+            <div>
+                {% if fumo.en_stock %}
+                    <a href="{% url 'pedidos:agregar' fumo.id %}" class="btn btn-danger btn-lg rounded-0 w-100 fw-bold py-2 text-uppercase shadow-none" style="background-color: #d9381e;">
+                        <i class="bi bi-cart-plus-fill me-2"></i>Añadir al Carrito (Adquirir Fumo)
+                    </a>
+                {% else %}
+                    <button class="btn btn-secondary btn-lg rounded-0 w-100 py-2 text-uppercase" disabled>
+                        Agotado por el momento :C
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if relacionadas %}
+<div class="mb-5">
+    <h3 class="h5 fw-bold text-dark mb-3 border-bottom pb-2">
+        <span class="text-danger">■</span> Artículos Relacionados de la misma Línea
+    </h3>
+    <div class="row g-3">
+        {% for rel in relacionadas %}
+        <div class="col-6 col-md-3">
+            <div class="card h-100 border rounded-0 shadow-none bg-white">
+                <div class="bg-light text-center p-2 border-bottom" style="height: 150px; display: flex; align-items: center; justify-content: center;">
+                    {% if rel.imagen %}
+                        <img src="{{ rel.imagen.url }}" alt="{{ rel.nombre }}" style="max-height: 130px; object-fit: contain;">
+                    {% else %}
+                        <i class="bi bi-image fs-1 text-muted"></i>
+                    {% endif %}
+                </div>
+                <div class="card-body p-2 d-flex flex-column justify-content-between small">
+                    <div>
+                        <div class="text-truncate fw-bold text-dark mb-1">{{ rel.nombre }}</div>
+                        <div class="text-danger fw-bold">{{ rel.precio_formateado }}</div>
+                    </div>
+                    <a href="{% url 'catalogo:detalle' rel.slug %}" class="btn btn-outline-dark btn-sm rounded-0 mt-2 py-0">Ver Detalle</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

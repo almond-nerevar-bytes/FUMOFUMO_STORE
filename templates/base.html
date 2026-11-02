@@ -34,7 +34,7 @@
                     {% endif %}
                 </ul>
                 <div class="d-flex align-items-center gap-3">
-                    <a href="{% url 'catalogo:carrito_ver' %}" class="btn btn-outline-warning position-relative">
+                    <a href="{% url 'pedidos:ver' %}" class="btn btn-outline-warning position-relative">
                         <i class="bi bi-cart3"></i>
                         {% if carrito_total_items > 0 %}
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">

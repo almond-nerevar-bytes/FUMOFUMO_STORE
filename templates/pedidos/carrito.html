@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Carrito de Compras | FUMOFUMO World{% endblock %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small bg-light p-2 border rounded-1">
+        <li class="breadcrumb-item"><a href="{% url 'core:inicio' %}" class="text-decoration-none text-dark fw-bold">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'catalogo:lista' %}" class="text-decoration-none text-dark">Catálogo Fumo</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Carrito de Compras</li>
+    </ol>
+</nav>
+
+
+<div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+    <div>
+        <span class="badge text-white me-2" style="background-color: #1b2a4a;">CARRITO DE SESIÓN</span>
+        <h1 class="h4 fw-bold text-dark d-inline-block mb-0">
+            <i class="bi bi-cart3 me-2" style="color: #ff6600;"></i>Carrito de Compras
+        </h1>
+    </div>
+</div>
+
+{% if esta_vacio %}
+
+<div class="bg-white border rounded-1 p-5 text-center shadow-sm mb-5">
+    <div class="py-4">
+        <i class="bi bi-cart-x text-muted opacity-50 display-1 mb-3"></i>
+        <h3 class="h4 fw-bold text-dark mb-2">TU CARRITO DE COMPRAS ESTÁ VACÍO</h3>
+        <p class="text-muted small mb-4">No hay ítems seleccionados en la sesión actual de tu navegador.</p>
+        <a href="{% url 'catalogo:lista' %}" class="btn text-white px-4 py-2 text-uppercase fs-6 fw-bold shadow-sm" style="background: linear-gradient(180deg, #ff8800 0%, #ff5500 100%); border: 1px solid #cc4400;">
+            <i class="bi bi-grid-3x3-gap-fill me-2"></i>Explorar Colección Fumo
+        </a>
+    </div>
+</div>
+{% else %}
+<div class="row g-4 mb-5">
+
+    <div class="col-lg-8">
+        <div class="bg-white border rounded-1 shadow-sm mb-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light border-bottom">
+                        <tr class="small text-uppercase text-secondary">
+                            <th scope="col" style="width: 70px;">Imagen</th>
+                            <th scope="col">Detalles del Producto</th>
+                            <th scope="col">Precio Unit.</th>
+                            <th scope="col" class="text-center" style="width: 130px;">Cant.</th>
+                            <th scope="col" class="text-end">Subtotal</th>
+                            <th scope="col" class="text-center" style="width: 50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items_carrito %}
+                        <tr>
+                            <td class="text-center p-2">
+                                {% if item.imagen_url %}
+                                    <img src="{{ item.imagen_url }}" alt="{{ item.nombre }}" class="border p-1 bg-white rounded-1" style="width: 50px; height: 50px; object-fit: contain;">
+                                {% else %}
+                                    <div class="bg-light border text-center d-flex align-items-center justify-content-center rounded-1" style="width: 50px; height: 50px;">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'catalogo:detalle' item.slug %}" class="fw-bold text-dark text-decoration-none">
+                                    {{ item.nombre }}
+                                </a>
+                                <small class="text-muted d-block" style="font-size: 0.78rem;">
+                                    Fabricante: <strong>{{ item.fabricante }}</strong> | Código: FUMO-00{{ item.id }}
+                                </small>
+                            </td>
+                            <td class="text-dark font-monospace">${{ item.precio|floatformat:0 }}</td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm border rounded-1 bg-light">
+                                    <a href="{% url 'pedidos:restar' item.id %}" class="btn btn-light border-end px-2" title="Restar">-</a>
+                                    <span class="btn btn-light disabled text-dark fw-bold px-2">{{ item.cantidad }}</span>
+                                    <a href="{% url 'pedidos:agregar' item.id %}" class="btn btn-light border-start px-2" title="Sumar">+</a>
+                                </div>
+                            </td>
+                            <td class="text-end fw-bold text-danger font-monospace">${{ item.subtotal|floatformat:0 }}</td>
+                            <td class="text-center">
+                                <a href="{% url 'pedidos:eliminar' item.id %}" class="text-danger" title="Eliminar ítem">
+                                    <i class="bi bi-trash fs-6"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-light p-3 border-top d-flex justify-content-between align-items-center">
+                <a href="{% url 'catalogo:lista' %}" class="btn btn-outline-secondary btn-sm rounded-1">
+                    <i class="bi bi-arrow-left me-1"></i>Seguir Comprando
+                </a>
+                <a href="{% url 'pedidos:limpiar' %}" class="btn btn-outline-danger btn-sm rounded-1" onclick="return confirm('¿Deseas vaciar la selección transitoria de tu sesión?');">
+                    <i class="bi bi-trash me-1"></i>Vaciar Carrito
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-lg-4">
+        <div class="bg-white border rounded-1 p-3 p-md-4 shadow-sm">
+            <h5 class="fw-bold text-dark border-bottom pb-2 mb-3" style="font-size: 0.95rem;">
+                <i class="bi bi-receipt-cutoff me-2" style="color: #ff6600;"></i>RESUMEN DE LA COMPRA
+            </h5>
+
+            <div class="d-flex justify-content-between text-secondary small mb-2">
+                <span>Subtotal Neto:</span>
+                <span class="font-monospace text-dark">${{ subtotal|floatformat:0 }} CLP</span>
+            </div>
+            <div class="d-flex justify-content-between text-secondary small mb-3">
+                <span>Impuesto Estimado (19% IVA):</span>
+                <span class="font-monospace text-dark">${{ iva|floatformat:0 }} CLP</span>
+            </div>
+
+            <div class="p-2 bg-light border rounded-1 mb-3">
+                <div class="d-flex justify-content-between align-items-baseline">
+                    <span class="fw-bold text-dark small text-uppercase">Monto Total:</span>
+                    <div class="text-end">
+                        <span class="fs-3 fw-bold text-danger font-monospace">${{ total|floatformat:0 }}</span>
+                        <span class="small text-muted">CLP</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'pedidos:checkout' %}" class="btn text-white w-100 py-2.5 text-uppercase fs-6 fw-bold shadow-sm" style="background: linear-gradient(180deg, #ff8800 0%, #ff5500 100%); border: 1px solid #cc4400;">
+                    <i class="bi bi-credit-card-fill me-2"></i>Confirmar y Procesar Compra
+                </a>
+            {% else %}
+                <div class="alert alert-warning small mb-3 py-2 rounded-1">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>Inicia sesión con tu cuenta para procesar la orden.
+                </div>
+                <a href="{% url 'usuarios:login' %}?next={% url 'pedidos:checkout' %}" class="btn text-white w-100 py-2.5 text-uppercase fs-6 fw-bold shadow-sm" style="background: linear-gradient(180deg, #ff8800 0%, #ff5500 100%); border: 1px solid #cc4400;">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión para Comprar
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

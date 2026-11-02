@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmación de Pedido | FUMOFUMO World{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mb-5">
+    <div class="col-lg-8">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb small bg-light p-2 border rounded-1">
+                <li class="breadcrumb-item"><a href="{% url 'core:inicio' %}" class="text-decoration-none text-dark fw-bold">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Confirmación de Pedido</li>
+            </ol>
+        </nav>
+
+        <div class="bg-white border rounded-1 shadow-sm p-4 p-md-5">
+            <div class="text-center border-bottom pb-4 mb-4">
+                <i class="bi bi-check-circle-fill text-success display-2"></i>
+                <h1 class="h3 fw-bold text-dark mt-2 mb-1">¡ORDEN COMPLETADA CON ÉXITO!</h1>
+                <p class="text-muted small mb-3">
+                    ¡Muchas gracias por tu compra, <strong>{{ user.first_name|default:user.username }}</strong>! Tu solicitud de reserva e itinerario fue procesada correctamente.
+                </p>
+                <span class="badge text-white fs-6 px-3 py-2 font-monospace" style="background-color: #1b2a4a;">NÚMERO DE PEDIDO: {{ orden_id }}</span>
+            </div>
+
+            <div class="bg-light border rounded-1 p-3 p-md-4 mb-4">
+                <h5 class="fw-bold text-dark border-bottom pb-2 mb-3" style="font-size: 0.9rem;">
+                    <i class="bi bi-box-seam me-2" style="color: #ff6600;"></i>DETALLES DE LOS ÍTEMS SOLICITADOS
+                </h5>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered bg-white align-middle mb-3">
+                        <thead class="table-light">
+                            <tr class="small">
+                                <th>Especificación del Ítem</th>
+                                <th class="text-center" style="width: 100px;">Cant.</th>
+                                <th class="text-end" style="width: 120px;">Precio Unit.</th>
+                                <th class="text-end" style="width: 130px;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small">
+                            {% for item in items %}
+                            <tr>
+                                <td>
+                                    <strong class="text-dark d-block">{{ item.nombre }}</strong>
+                                    <span class="text-muted" style="font-size: 0.75rem;">Fabricante: {{ item.fabricante }}</span>
+                                </td>
+                                <td class="text-center fw-bold">{{ item.cantidad }}</td>
+                                <td class="text-end font-monospace">${{ item.precio|floatformat:0 }}</td>
+                                <td class="text-end font-monospace text-danger fw-bold">${{ item.subtotal|floatformat:0 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row justify-content-end">
+                    <div class="col-md-6">
+                        <table class="table table-borderless table-sm mb-0 small">
+                            <tbody>
+                                <tr>
+                                    <td class="text-secondary text-end">Subtotal Neto:</td>
+                                    <td class="text-end font-monospace fw-bold" style="width: 40%;">${{ subtotal|floatformat:0 }} CLP</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-secondary text-end">Impuesto (19% IVA):</td>
+                                    <td class="text-end font-monospace fw-bold">${{ iva|floatformat:0 }} CLP</td>
+                                </tr>
+                                <tr class="border-top">
+                                    <td class="fw-bold text-dark text-end fs-6">Total Definitivo:</td>
+                                    <td class="text-end font-monospace fw-bold text-danger fs-5">${{ total|floatformat:0 }} CLP</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 pt-2">
+                <a href="{% url 'catalogo:lista' %}" class="btn text-white px-4 py-2 text-uppercase fs-6 fw-bold shadow-sm" style="background: linear-gradient(180deg, #ff8800 0%, #ff5500 100%); border: 1px solid #cc4400;">
+                    <i class="bi bi-grid-3x3-gap-fill me-1"></i>Volver al Catálogo
+                </a>
+                <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-secondary px-4 py-2 rounded-1 text-uppercase fs-6">
+                    <i class="bi bi-person-circle me-1"></i>Mi Perfil de Usuario
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -48,3 +50,54 @@ def carrito_agregar(request, id):
     request.session.modified = True
     messages.success(request, f"¡Peluche Fumo '{fumo.nombre}' añadido al carrito de importación!")
     return redirect(request.META.get('HTTP_REFERER') or 'pedidos:ver')
+
+
+def carrito_restar(request, id):
+    carrito = _obtener_carrito(request)
+    str_id = str(id)
+    item = carrito.get(str_id)
+    if item:
+        if item['cantidad'] > 1:
+            item['cantidad'] -= 1
+            item['subtotal'] = item['precio'] * item['cantidad']
+        else:
+            del carrito[str_id]
+        request.session.modified = True
+    return redirect('pedidos:ver')
+
+
+def carrito_eliminar(request, id):
+    carrito = _obtener_carrito(request)
+    if carrito.pop(str(id), None) is not None:
+        request.session.modified = True
+    return redirect('pedidos:ver')
+
+
+def carrito_limpiar(request):
+    _obtener_carrito(request).clear()
+    request.session.modified = True
+    return redirect('pedidos:ver')
+
+
+@login_required
+def checkout_simulado(request):
+    carrito = _obtener_carrito(request)
+    if not carrito:
+        messages.warning(request, 'Tu carrito está vacío.')
+        return redirect('pedidos:ver')
+
+    items = [item.copy() for item in carrito.values()]
+    subtotal = sum(item['subtotal'] for item in items)
+    iva = int(subtotal * 0.19)
+    total = subtotal + iva
+    orden_id = uuid4().hex[:8].upper()
+
+    carrito.clear()
+    request.session.modified = True
+    return render(request, 'pedidos/checkout_exito.html', {
+        'items': items,
+        'subtotal': subtotal,
+        'iva': iva,
+        'total': total,
+        'orden_id': orden_id,
+    })

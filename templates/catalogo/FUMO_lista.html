@@ -1,123 +1,88 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ fumo.nombre }} | FUMOFUMO World{% endblock %}
+{% block title %}Catálogo Fumo | FUMOFUMO World{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'core:inicio' %}" class="text-decoration-none text-danger">Inicio</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'catalogo:lista' %}" class="text-decoration-none text-danger">Catálogo Fumo</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'catalogo:lista' %}?categoria={{ fumo.categoria.slug }}" class="text-decoration-none text-danger">{{ fumo.categoria.nombre }}</a></li>
-        <li class="breadcrumb-item active" aria-current="page">{{ fumo.nombre }}</li>
-    </ol>
-</nav>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Catálogo Fumo</h1>
+        <p class="text-muted mb-0">{{ total_resultados }} producto{{ total_resultados|pluralize }} disponible{{ total_resultados|pluralize }}</p>
+    </div>
+</div>
 
-<div class="card border-0 shadow rounded-4 overflow-hidden mb-5 bg-white">
-    <div class="row g-0">
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-5">
+        <label class="visually-hidden" for="catalog-search">Buscar Fumos</label>
+        <input id="catalog-search" type="search" name="q" value="{{ query_actual }}" class="form-control" placeholder="Nombre, fabricante o franquicia">
+    </div>
+    <div class="col-md-3">
+        <label class="visually-hidden" for="catalog-category">Categoría</label>
+        <select id="catalog-category" name="categoria" class="form-select">
+            <option value="">Todas las categorías</option>
+            {% for categoria in categorias %}
+                <option value="{{ categoria.slug }}" {% if categoria.slug == categoria_seleccionada %}selected{% endif %}>{{ categoria.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="visually-hidden" for="catalog-sort">Ordenar</label>
+        <select id="catalog-sort" name="orden" class="form-select">
+            <option value="recientes" {% if orden_actual == 'recientes' or orden_actual == '-fecha_creacion' %}selected{% endif %}>Más recientes</option>
+            <option value="precio_asc" {% if orden_actual == 'precio_asc' %}selected{% endif %}>Precio: menor a mayor</option>
+            <option value="precio_desc" {% if orden_actual == 'precio_desc' %}selected{% endif %}>Precio: mayor a menor</option>
+            <option value="nombre_asc" {% if orden_actual == 'nombre_asc' %}selected{% endif %}>Nombre</option>
+        </select>
+    </div>
+    <div class="col-md-1 d-grid">
+        <button type="submit" class="btn btn-danger" aria-label="Aplicar filtros"><i class="bi bi-search"></i></button>
+    </div>
+</form>
 
-        <div class="col-md-6 bg-white d-flex align-items-center justify-content-center p-4 p-md-5 border-end">
-            {% if fumo.imagen %}
-                <img src="{{ fumo.imagen.url }}" alt="{{ fumo.nombre }}" class="img-fluid rounded-3 shadow-sm" style="max-height: 420px; object-fit: contain;">
-            {% else %}
-                <div class="text-center py-5 text-muted">
-                    <i class="bi bi-image display-1 text-danger opacity-50"></i>
-                    <p class="mt-2 mb-0 small">Fumo en camino (Fotografía pendiente)</p>
+<div class="row g-3">
+    {% for fumo in fumos %}
+        <div class="col-6 col-lg-4">
+            <article class="card h-100 border-0 shadow-sm">
+                <a href="{% url 'catalogo:detalle' fumo.slug %}" class="bg-light d-flex align-items-center justify-content-center p-3" style="height: 220px;">
+                    {% if fumo.imagen %}
+                        <img src="{{ fumo.imagen.url }}" alt="{{ fumo.nombre }}" class="img-fluid" style="max-height: 190px; object-fit: contain;">
+                    {% else %}
+                        <i class="bi bi-image text-muted display-4" aria-hidden="true"></i>
+                        <span class="visually-hidden">Imagen no disponible</span>
+                    {% endif %}
+                </a>
+                <div class="card-body d-flex flex-column">
+                    <span class="small text-muted">{{ fumo.categoria.nombre }}</span>
+                    <h2 class="h6 fw-bold mt-1">{{ fumo.nombre }}</h2>
+                    <p class="small text-muted mb-2">{{ fumo.fabricante }}</p>
+                    <div class="mt-auto">
+                        <p class="fs-5 fw-bold text-danger mb-2">{{ fumo.precio_formateado }}</p>
+                        {% if fumo.en_stock %}
+                            <a href="{% url 'pedidos:agregar' fumo.id %}" class="btn btn-danger w-100">Agregar al carrito</a>
+                        {% else %}
+                            <button class="btn btn-secondary w-100" disabled>Agotado</button>
+                        {% endif %}
+                    </div>
                 </div>
+            </article>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">No encontramos Fumos con esos filtros.</div>
+        </div>
+    {% endfor %}
+</div>
+
+{% if fumos.has_other_pages %}
+    <nav aria-label="Paginación del catálogo" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if fumos.has_previous %}
+                <li class="page-item"><a class="page-link" href="?q={{ query_actual|urlencode }}&categoria={{ categoria_seleccionada|urlencode }}&orden={{ orden_actual|urlencode }}&page={{ fumos.previous_page_number }}">Anterior</a></li>
             {% endif %}
-        </div>
-
-        <div class="col-md-6 p-4 p-md-5 d-flex flex-column justify-content-between">
-            <div>
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="badge bg-danger bg-gradient px-3 py-2 fw-semibold">
-                        <i class="bi bi-stars me-1"></i>{{ fumo.categoria.nombre }}
-                    </span>
-                    {% if user.is_staff %}
-                        <div class="btn-group btn-group-sm">
-                            <a href="{% url 'catalogo:editar' fumo.id %}" class="btn btn-outline-warning text-dark">
-                                <i class="bi bi-pencil me-1"></i>Editar
-                            </a>
-                            <a href="{% url 'catalogo:eliminar' fumo.id %}" class="btn btn-outline-danger">
-                                <i class="bi bi-trash me-1"></i>Eliminar
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
-
-                <h1 class="h2 fw-bold text-dark mb-2">{{ fumo.nombre }}</h1>
-
-                <div class="mb-3 text-muted">
-                    <span class="me-3"><i class="bi bi-gift me-1"></i>Fabricante: <strong>{{ fumo.fabricante }}</strong></span>
-                    {% if fumo.escala %}
-                        <span><i class="bi bi-rulers me-1"></i>Tamaño/Escala: <strong>{{ fumo.escala }}</strong></span>
-                    {% endif %}
-                </div>
-
-                <div class="mb-4">
-                    <span class="display-5 fw-bold text-danger">{{ fumo.precio_formateado }}</span>
-                    <span class="text-muted small ms-2">CLP (IVA incluido)</span>
-                </div>
-
-                <div class="mb-4">
-                    {% if fumo.en_stock %}
-                        <span class="badge bg-success px-3 py-2 fs-6">
-                            <i class="bi bi-check-circle-fill me-1"></i>¡Listo para adoptar!: {{ fumo.stock }} en stock
-                        </span>
-                    {% else %}
-                        <span class="badge bg-secondary px-3 py-2 fs-6">
-                            <i class="bi bi-clock-history me-1"></i>Agotado (Esperando reposición en Gensokyo)
-                        </span>
-                    {% endif %}
-                </div>
-
-                <div class="mb-4">
-                    <h5 class="fw-bold fs-6 text-uppercase text-secondary">Historia y Detalles del Fumo</h5>
-                    <p class="text-muted lh-base" style="white-space: pre-line;">{{ fumo.descripcion }}</p>
-                </div>
-            </div>
-
-            <div class="border-top pt-4">
-                {% if fumo.en_stock %}
-                    <a href="{% url 'pedidos:agregar' fumo.id %}" class="btn btn-danger btn-lg w-100 py-3 fw-bold shadow-sm">
-                        <i class="bi bi-bag-heart-fill me-2"></i>¡Adoptar Fumo / Agregar al Carrito!
-                    </a>
-                {% else %}
-                    <button class="btn btn-light border btn-lg w-100 py-3 text-muted" disabled>
-                        <i class="bi bi-heartbreak me-2"></i>Sin stock disponible por ahora
-                    </button>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-
-{% if relacionadas %}
-<div class="mb-5">
-    <h3 class="h4 fw-bold mb-3"><i class="bi bi-heart-pulse-fill text-danger me-2"></i>Más compañeros para tu colección de {{ fumo.categoria.nombre }}</h3>
-    <div class="row g-4">
-        {% for rel in relacionadas %}
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border bg-white">
-                <div class="bg-white text-center p-3 border-bottom" style="height: 180px; display: flex; align-items: center; justify-content: center;">
-                    {% if rel.imagen %}
-                        <img src="{{ rel.imagen.url }}" alt="{{ rel.nombre }}" style="max-height: 150px; object-fit: contain;">
-                    {% else %}
-                        <i class="bi bi-image fs-1 text-muted"></i>
-                    {% endif %}
-                </div>
-                <div class="card-body p-3 d-flex flex-column justify-content-between">
-                    <div>
-                        <h6 class="fw-bold mb-1 text-truncate">{{ rel.nombre }}</h6>
-                        <span class="fw-bold text-danger">{{ rel.precio_formateado }}</span>
-                    </div>
-                    <div class="mt-3">
-                        <a href="{% url 'catalogo:detalle' rel.slug %}" class="btn btn-outline-danger btn-sm w-100 fw-semibold">Ver Ficha Fumo</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
+            <li class="page-item disabled"><span class="page-link">Página {{ fumos.number }} de {{ fumos.paginator.num_pages }}</span></li>
+            {% if fumos.has_next %}
+                <li class="page-item"><a class="page-link" href="?q={{ query_actual|urlencode }}&categoria={{ categoria_seleccionada|urlencode }}&orden={{ orden_actual|urlencode }}&page={{ fumos.next_page_number }}">Siguiente</a></li>
+            {% endif %}
+        </ul>
+    </nav>
 {% endif %}
 {% endblock %}
